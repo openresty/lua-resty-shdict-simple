@@ -32,6 +32,7 @@ local neg_ttl = 10000  -- in ms
 
 local my_shdict_set, my_shdict_get
                   = shdict_simple.gen_shdict_methods{
+                       dict_name = "my_lua_shared_dict_name",
                        debug_logger = dlog,
                        error_logger = error_log,
                        positive_ttl = pos_ttl,

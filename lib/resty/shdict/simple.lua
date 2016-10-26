@@ -39,6 +39,10 @@ function _M.gen_shdict_methods (opts)
         local ok, err = shdict:safe_set(key, value, ttl)
         if not ok then
             if err == "no memory" then
+                if DEBUG then
+                    dlog(ctx, 'shdict ', dict_name,
+                            ' out of memory, and now try to set by force')
+                end
                 -- with force:
                 ok, err = shdict:set(key, value, ttl)
             end

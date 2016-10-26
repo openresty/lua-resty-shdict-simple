@@ -93,6 +93,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 See Also
 ========
 
+* [lua-resty-memcached-shdict](https://github.com/openresty/lua-resty-memcached-shdict)
 * [lua-resty-lrucache](https://github.com/openresty/lua-resty-lrucache)
 * [lua-resty-memcached](https://github.com/openresty/lua-resty-memcached)
 * [lua_shared_dict](https://github.com/openresty/lua-nginx-module#lua_shared_dict)

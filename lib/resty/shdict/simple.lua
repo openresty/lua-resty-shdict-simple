@@ -36,16 +36,22 @@ function _M.gen_shdict_methods (opts)
             ttl = ttl or pos_ttl
         end
 
+        -- we use safe_set to avoid evicting expired items in the shm store.
         local ok, err = shdict:safe_set(key, value, ttl)
         if not ok then
             if err == "no memory" then
+                if DEBUG then
+                    dlog(ctx, 'shdict ', dict_name,
+                         ' out of memory, and now try to set by force')
+                end
+
                 -- with force:
                 ok, err = shdict:set(key, value, ttl)
             end
 
             if not ok then
                 error_log(ctx, 'failed to set key "', key, '" to shdict "',
-                             dict_name, '": ', err)
+                          dict_name, '": ', err)
                 return false
             end
         end
@@ -62,7 +68,7 @@ function _M.gen_shdict_methods (opts)
         if res and not stale then
             if DEBUG then
                 dlog(ctx, res == "" and "negative" or "positive",
-                      ' cache hit on key "', key, '"')
+                     ' cache hit on key "', key, '"')
             end
         end
 

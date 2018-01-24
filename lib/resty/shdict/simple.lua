@@ -19,6 +19,11 @@ function _M.gen_shdict_methods (opts)
     local disable_shdict = opts.disable_shdict
     local dict_name = opts.dict_name
     local shdict = ngx.shared[dict_name]
+    if not shdict then
+        error("failed to find lua_shared_dict \""
+              .. tostring(dict_name) .. "\" in your nginx.conf")
+    end
+
     local shdict_set, shdict_get
 
     pos_ttl = pos_ttl / 1000  -- convert to sec

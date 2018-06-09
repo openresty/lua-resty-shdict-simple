@@ -9,6 +9,9 @@ local _M = {
 
 
 local DEBUG = ngx.config.debug
+local ngx = ngx
+local error = error
+local tostring = tostring
 
 
 function _M.gen_shdict_methods (opts)

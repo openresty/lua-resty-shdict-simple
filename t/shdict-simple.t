@@ -95,14 +95,14 @@ true
                 }
 
             local ctx = ngx.ctx
-            local key = "c57a769495f14df8985d773eaa410ba2411aa9d588798b3aea60eae29a383ab0"
+            local key = "a"
             local value = string.rep("a", 1000 * 1000)
             ok = meta_shdict_set(ctx, key, value)
             ngx.say(ok)
             local data, err = meta_shdict_get(ctx, key)
             ngx.say(data == value)
 
-            key = 'test'
+            key = "b"
             value = string.rep("b", 1000 * 1000)
             ok = meta_shdict_set(ctx, key, value)
             ngx.say(ok)
@@ -151,14 +151,14 @@ try to set by force 1th time
                 }
 
             local ctx = ngx.ctx
-            local key = "c57a769495f14df8985d773eaa410ba2411aa9d588798b3aea60eae29a383ab0"
+            local key = "a"
             local value = string.rep("a", 1000 * 1000)
             ok = meta_shdict_set(ctx, key, value)
             ngx.say(ok)
             local data, err = meta_shdict_get(ctx, key)
             ngx.say(data == value)
 
-            key = 'test'
+            key = "b"
             value = string.rep("b", 1000 * 1000)
             ok = meta_shdict_set(ctx, key, value)
             ngx.say(ok)

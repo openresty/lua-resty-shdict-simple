@@ -21,6 +21,7 @@ function _M.gen_shdict_methods (opts)
     local neg_ttl = opts.negative_ttl
     local disable_shdict = opts.disable_shdict
     local dict_name = opts.dict_name
+    local set_retries = opts.set_retries or 1
     local shdict = ngx.shared[dict_name]
     if not shdict then
         error("failed to find lua_shared_dict \""
@@ -54,7 +55,14 @@ function _M.gen_shdict_methods (opts)
                 end
 
                 -- with force:
-                ok, err = shdict:set(key, value, ttl)
+                local retries = 0
+                while not ok and set_retries > retries do
+                    ok, err = shdict:set(key, value, ttl)
+                    retries = retries + 1
+                    if DEBUG then
+                        dlog(ctx, 'try to set by force ' .. tostring(retries) .. 'th time')
+                    end
+                end
             end
 
             if not ok then

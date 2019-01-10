@@ -21,7 +21,7 @@ function _M.gen_shdict_methods (opts)
     local neg_ttl = opts.negative_ttl
     local disable_shdict = opts.disable_shdict
     local dict_name = opts.dict_name
-    local force_retries = opts.force_retries or 1
+    local max_tries = opts.max_tries or 1
     local shdict = ngx.shared[dict_name]
     if not shdict then
         error("failed to find lua_shared_dict \""
@@ -45,32 +45,25 @@ function _M.gen_shdict_methods (opts)
             ttl = ttl or pos_ttl
         end
 
-        -- we use safe_set to avoid evicting expired items in the shm store.
-        local ok, err = shdict:safe_set(key, value, ttl)
-        if not ok then
-            if err == "no memory" then
-                if DEBUG then
-                    dlog(ctx, 'shdict ', dict_name,
-                         ' out of memory, and now try to set by force')
-                end
-
-                -- with force:
-                local retries = 0
-                while not ok and force_retries > retries do
-                    ok, err = shdict:set(key, value, ttl)
-                    retries = retries + 1
-                    if DEBUG then
-                        dlog(ctx, 'try to set by force ' .. tostring(retries) .. 'th time')
-                    end
-                end
+        local tries = 0
+        local ok, err
+        while tries < max_tries do
+            ok, err = shdict:set(key, value, ttl)
+            tries = tries + 1
+            if DEBUG then
+                dlog(ctx, 'try to set key ' .. tostring(tries) .. 'th time')
             end
-
-            if not ok then
-                error_log(ctx, 'failed to set key "', key, '" to shdict "',
-                          dict_name, '": ', err)
-                return false
+            if not ok and err == "no memory" then
+                break
             end
         end
+
+        if not ok then
+            error_log(ctx, 'failed to set key "', key, '" to shdict "',
+                        dict_name, '": ', err)
+            return false
+        end
+
         return true
     end
 

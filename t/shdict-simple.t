@@ -5,7 +5,7 @@ use Test::Nginx::Socket::Lua;
 repeat_each(2);
 no_long_string();
 
-plan tests => repeat_each() * (3 * blocks());
+plan tests => repeat_each() * (3 * blocks() + 2);
 
 our $HttpConfig = <<'_EOC_';
     lua_shared_dict shared 1m;
@@ -119,6 +119,8 @@ true
 true
 --- error_log
 try to set key 1th time
+--- no_error_log
+try to set key 2th time
 
 
 
@@ -175,3 +177,62 @@ true
 true
 --- error_log
 try to set key 1th time
+--- no_error_log
+try to set key 2th time
+
+
+
+=== TEST 4: no memory error
+--- http_config eval: $::HttpConfig
+--- config
+    location /t {
+        content_by_lua_block {
+            local shdict_simple = require "resty.shdict.simple"
+
+            local function dlog(ctx, ...)
+                ngx.log(ngx.DEBUG, "my app: ", ...)
+            end
+
+            local function error_log(ctx, ...)
+                ngx.log(ngx.ERR, "my app: ", ...)
+            end
+
+            local function warn(ctx, ...)
+                ngx.log(ngx.WARN, "my app: ", ...)
+            end
+
+            local meta_shdict_set, meta_shdict_get =
+                shdict_simple.gen_shdict_methods{
+                    dict_name = "shared",
+                    debug_logger = dlog,
+                    error_logger = error_log,
+                    positive_ttl = 24 * 60 * 60 * 1000,     -- in ms
+                    negative_ttl = 60 * 60 * 1000,          -- in ms
+                    max_tries = 10,
+                }
+
+            local ctx = ngx.ctx
+            local key = "a"
+            local value = string.rep("a", 1000 * 1000)
+            ok = meta_shdict_set(ctx, key, value)
+            ngx.say(ok)
+            local data, err = meta_shdict_get(ctx, key)
+            ngx.say(data == value)
+
+            key = "b"
+            value = string.rep("b", 1000 * 2000)
+            ok = meta_shdict_set(ctx, key, value)
+            ngx.say(ok)
+            local data, err = meta_shdict_get(ctx, key)
+            ngx.say(data == value)
+        }
+    }
+--- request
+GET /t
+--- response_body
+true
+true
+false
+false
+--- error_log
+try to set key 10th time

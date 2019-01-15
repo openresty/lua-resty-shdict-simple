@@ -37,7 +37,7 @@ local my_shdict_set, my_shdict_get
                        error_logger = error_log,
                        positive_ttl = pos_ttl,
                        negative_ttl = neg_ttl,
-                       force_retries = 10, -- default is 1
+                       max_tries = 10, -- default is 1
                     }
 
 -- on hot code paths:

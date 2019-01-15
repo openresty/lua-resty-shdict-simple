@@ -65,7 +65,7 @@ true
 
 
 
-=== TEST 2: force_retries
+=== TEST 2: max_tries
 --- http_config eval: $::HttpConfig
 --- config
     location /t {
@@ -91,7 +91,7 @@ true
                     error_logger = error_log,
                     positive_ttl = 24 * 60 * 60 * 1000,     -- in ms
                     negative_ttl = 60 * 60 * 1000,          -- in ms
-                    force_retries = 10,
+                    max_tries = 10,
                 }
 
             local ctx = ngx.ctx
@@ -118,11 +118,11 @@ true
 true
 true
 --- error_log
-try to set by force 1th time
+try to set key 1th time
 
 
 
-=== TEST 3: use the default value of force_retries
+=== TEST 3: use the default value of max_tries
 --- http_config eval: $::HttpConfig
 --- config
     location /t {
@@ -174,4 +174,4 @@ true
 true
 true
 --- error_log
-try to set by force 1th time
+try to set key 1th time

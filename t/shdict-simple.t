@@ -5,7 +5,7 @@ use Test::Nginx::Socket::Lua;
 repeat_each(2);
 no_long_string();
 
-plan tests => repeat_each() * (3 * blocks() + 2);
+plan tests => repeat_each() * (3 * blocks());
 
 our $HttpConfig = <<'_EOC_';
     lua_shared_dict shared 1m;
@@ -117,10 +117,10 @@ true
 true
 true
 true
---- error_log
-try to set key 1th time
---- no_error_log
-try to set key 2th time
+--- grep_error_log eval: qr/try to set key: \w+, the \d+th time/
+--- grep_error_log_out
+try to set key: a, the 1th time
+try to set key: b, the 1th time
 
 
 
@@ -175,11 +175,10 @@ true
 true
 true
 true
---- error_log
-try to set key 1th time
---- no_error_log
-try to set key 2th time
-
+--- grep_error_log eval: qr/try to set key: \w+, the \d+th time/
+--- grep_error_log_out
+try to set key: a, the 1th time
+try to set key: b, the 1th time
 
 
 === TEST 4: no memory error
@@ -234,5 +233,16 @@ true
 true
 false
 false
---- error_log
-try to set key 10th time
+--- grep_error_log eval: qr/try to set key: \w+, the \d+th time/
+--- grep_error_log_out
+try to set key: a, the 1th time
+try to set key: b, the 1th time
+try to set key: b, the 2th time
+try to set key: b, the 3th time
+try to set key: b, the 4th time
+try to set key: b, the 5th time
+try to set key: b, the 6th time
+try to set key: b, the 7th time
+try to set key: b, the 8th time
+try to set key: b, the 9th time
+try to set key: b, the 10th time

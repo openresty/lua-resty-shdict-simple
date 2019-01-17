@@ -60,8 +60,9 @@ GET /t
 --- response_body
 true
 true
---- no_error_log
-[error]
+--- grep_error_log eval: qr/try to set key: \w+, the \d+th time/
+--- grep_error_log_out
+try to set key: c57a769495f14df8985d773eaa410ba2411aa9d588798b3aea60eae29a383ab0, the 1th time
 
 
 

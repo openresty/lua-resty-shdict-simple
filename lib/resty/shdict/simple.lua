@@ -51,16 +51,16 @@ function _M.gen_shdict_methods (opts)
             ok, err = shdict:set(key, value, ttl)
             tries = tries + 1
             if DEBUG then
-                dlog(ctx, 'try to set key ' .. tostring(tries) .. 'th time')
+                dlog(ctx, 'try to set key: ' .. key .. ', the '.. tostring(tries) .. 'th time')
             end
-            if not ok and err == "no memory" then
+            if ok or err ~= "no memory" then
                 break
             end
         end
 
         if not ok then
             error_log(ctx, 'failed to set key "', key, '" to shdict "',
-                        dict_name, '": ', err)
+                      dict_name, '": ', err)
             return false
         end
 

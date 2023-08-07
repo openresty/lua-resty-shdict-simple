@@ -1,5 +1,5 @@
 sudo: required
-dist: trusty
+dist: focal
 
 os: linux
 
@@ -28,7 +28,7 @@ env:
     - LD_LIBRARY_PATH=$LUAJIT_LIB:$LD_LIBRARY_PATH
     - TEST_NGINX_SLEEP=0.006
   matrix:
-    - NGINX_VERSION=1.9.15
+    - NGINX_VERSION=1.25.1
 
 install:
   - if [ ! -d download-cache ]; then mkdir download-cache; fi
@@ -36,9 +36,12 @@ install:
   - sudo apt-get install -qq -y cpanminus axel
   - sudo cpanm --notest Test::Nginx > build.log 2>&1 || (cat build.log && exit 1)
   - wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz
+  - git clone https://github.com/openresty/test-nginx.git
   - git clone https://github.com/openresty/openresty.git ../openresty
   - git clone https://github.com/openresty/nginx-devel-utils.git
   - git clone https://github.com/openresty/lua-cjson.git
+  - git clone https://github.com/openresty/lua-resty-core.git ../lua-resty-core
+  - git clone https://github.com/openresty/lua-resty-lrucache.git ../lua-resty-lrucache
   - git clone https://github.com/openresty/lua-nginx-module.git ../lua-nginx-module
   - git clone https://github.com/openresty/echo-nginx-module.git ../echo-nginx-module
   - git clone https://github.com/openresty/no-pool-nginx.git ../no-pool-nginx
@@ -57,8 +60,8 @@ script:
   - cd ..
   - export PATH=$PWD/work/nginx/sbin:$PWD/nginx-devel-utils:$PATH
   - export NGX_BUILD_CC=$CC
-  - ngx-build $NGINX_VERSION --with-ipv6 --with-http_realip_module --with-http_ssl_module --add-module=../echo-nginx-module --add-module=../lua-nginx-module --with-debug
+  - ngx-build $NGINX_VERSION --without-pcre2 --with-ipv6 --with-http_realip_module --with-http_ssl_module --add-module=../echo-nginx-module --add-module=../lua-nginx-module --with-debug
   - nginx -V
   - ldd `which nginx`|grep -E 'luajit|ssl|pcre'
-  - prove -r t
+  - prove -r -I./test-nginx/inc -I./test-nginx/ t
 
